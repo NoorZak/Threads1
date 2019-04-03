@@ -1,9 +1,9 @@
-/*
+
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package test3;
+package test;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -17,11 +17,10 @@ class FillThread extends Thread {
    private BufferedWriter w1,w2,w3;
     private boolean finished;
      
-    public FillThread(BufferedWriter w1,BufferedWriter w2,BufferedWriter w3) throws IOException {
+    public FillThread(BufferedWriter w1) throws IOException {
         String n;
         this.w1 = w1;
-        this.w2 = w2;
-        this.w3 = w3;
+       
         
         
     }
@@ -34,19 +33,16 @@ class FillThread extends Thread {
        
            
             try {
-                for (int i=0;i<100;i++){
+                for (int i=0;i<1000;i++){
         
                 
                 w1.write( Integer.toString((int)(Math.random()*51)));
                 w1.newLine();
-                w2.write( Integer.toString((int)(Math.random()*51)));
-                w2.newLine();
-                w3.write( Integer.toString((int)(Math.random()*51)));
-                w3.newLine();
-                
-                w1.flush();w2.flush();w3.flush();
-                
                 }
+                
+                w1.flush();
+                
+                
                 finished = true;
               
             }
@@ -73,15 +69,13 @@ class FillThread extends Thread {
 
 class CheckThread extends Thread   {
     private BufferedReader r;
-    private ArrayList<Integer> nums = new ArrayList<Integer>();
-    private boolean finished=false;
+     private boolean finished=false;
      
 private int sum=0;
     public CheckThread(BufferedReader r) throws IOException {
         String n;
         this.r = r;
-        while(( n =r.readLine())!=null)
-            this.nums.add(Integer.parseInt(n));
+       
         
     }
     
@@ -100,14 +94,19 @@ private int sum=0;
     
     public void run() {
         
-        
-        for(int i =0;i<nums.size();i++)
-        {
-           if(isPrime(nums.get(i))) sum++;
+        try {
+            String n;
+            
+            while(( n =r.readLine())!=null)
+          if(isPrime(Integer.parseInt(n))) sum++;
+
+            
+            
            
-           
+            finished = true;
+        } catch (IOException ex) {
+            Logger.getLogger(CheckThread.class.getName()).log(Level.SEVERE, null, ex);
         }
-        finished = true;
         
     }
     int getSum(){
@@ -118,7 +117,7 @@ private int sum=0;
     }
 }
 
-public class Test3 {
+public class Test {
     
     /**
      * @param args the command line arguments
@@ -126,24 +125,25 @@ public class Test3 {
     public static void main(String[] args) throws Exception{
         // TODO code application logic here
         // inb = new BufferedReader(new FileReader("F:\\Company\\Project.txt"));
-       BufferedWriter  out1 = new BufferedWriter(new FileWriter("D:\\New\\file1.txt"));
-       BufferedWriter  out2 = new BufferedWriter(new FileWriter("D:\\New\\file2.txt"));
-       BufferedWriter  out3 = new BufferedWriter(new FileWriter("D:\\New\\file3.txt"));
+       BufferedWriter  out1 = new BufferedWriter(new FileWriter("E:\\New\\file1.txt"));
+       BufferedWriter  out2 = new BufferedWriter(new FileWriter("E:\\New\\file2.txt"));
+       BufferedWriter  out3 = new BufferedWriter(new FileWriter("E:\\New\\file3.txt"));
        
        
-       BufferedReader  in1 = new BufferedReader(new FileReader("D:\\New\\file1.txt"));
-       BufferedReader  in2 = new BufferedReader(new FileReader("D:\\New\\file2.txt"));
-       BufferedReader  in3 = new BufferedReader(new FileReader("D:\\New\\file3.txt"));
+       BufferedReader  in1 = new BufferedReader(new FileReader("E:\\New\\file1.txt"));
+       BufferedReader  in2 = new BufferedReader(new FileReader("E:\\New\\file2.txt"));
+       BufferedReader  in3 = new BufferedReader(new FileReader("E:\\New\\file3.txt"));
        
        
-       FillThread th1 = new FillThread(out1,out2,out3);
-       th1.start();
+       FillThread th1 = new FillThread(out1);
+       FillThread th2 = new FillThread(out2);
+       FillThread th3 = new FillThread(out3);
+       
+       th1.start();th2.start();th3.start();
        
        
-       
-       while(!th1.isFinished());
-       
-        System.out.println("is finished");
+       while (!th1.isFinished() || !th2.isFinished() || !th3.isFinished());
+        
        
         CheckThread t1 = new CheckThread(in1);
         CheckThread t2 = new CheckThread(in2);
